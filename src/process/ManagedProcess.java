@@ -76,6 +76,8 @@ public class ManagedProcess {
     }
 
     public void waitForProcess() throws InterruptedException {
-        this.thread.join();
+        if (this.state == ProcessState.INIT) {
+            System.out.println("Process not started");
+        }else this.thread.join();
     }
 }

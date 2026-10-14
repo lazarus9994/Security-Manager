@@ -24,4 +24,11 @@ public class ProcessManager {
         process.waitForCompletion();
     }
 
+    public void waitForAllProcesses() throws InterruptedException {
+
+        for (ManagedProcess process : processList) {
+            process.waitForProcess();
+        }
+    }
+
 }
