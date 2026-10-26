@@ -1,35 +1,39 @@
 import manager.ProcessManager;
+import mapper.TasklistMapper;
 import process.ManagedProcess;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         ProcessManager pm = new ProcessManager();
 
-        ManagedProcess process1 = new ManagedProcess("cmd", "cmd", List.of("/c", "timeout", "/t", "5", "/nobreak").toArray(new String[3]));
-        ManagedProcess process2 = new ManagedProcess("cmd", "cmd", List.of("/c", "timeout", "/t", "8", "/nobreak").toArray(new String[3]));
-        ManagedProcess process3 = new ManagedProcess("cmd", "cmd", List.of("/c", "timeout", "/t", "12", "/nobreak").toArray(new String[3]));
-
-        pm.addProcess(process1);
+        //ManagedProcess process1 = new ManagedProcess("netstat", "netstat", List.of("-ano").toArray(new String[1]));
+        ManagedProcess process2 = new ManagedProcess("tasklist", "tasklist", Collections.emptyList().toArray(new String[0]));
         pm.addProcess(process2);
-        pm.addProcess(process3);
 
-        pm.startProcess(process1);
         pm.startProcess(process2);
-        pm.startProcess(process3);
+
 
         pm.waitForAllProcesses();
 
-        System.out.println(process1.getState());
-        System.out.println(process1.getExitCode());
 
         System.out.println(process2.getState());
         System.out.println(process2.getExitCode());
 
-        System.out.println(process3.getState());
-        System.out.println(process3.getExitCode());
+
+        System.out.println(process2.getOutput());
+
+        TasklistMapper tasklistMapper = new TasklistMapper(process2);
+
+        Map<Integer, String> pidNameMap = tasklistMapper.getPidNameMap();
+
+        for (Map.Entry<Integer, String> entry : pidNameMap.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
 
     }
 }

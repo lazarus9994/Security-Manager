@@ -1,6 +1,9 @@
 package process;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +18,8 @@ public class ManagedProcess {
     private int exitCode;
     private Process process;
     private Thread thread;
+    private String output;
+
 
     public ManagedProcess(String processName, String command, String[] arguments) {
         this.processName = processName;
@@ -50,6 +55,10 @@ public class ManagedProcess {
         return exitCode;
     }
 
+    public String getOutput() {
+        return output;
+    }
+
     public void start() throws IOException {
         List<String> params = new ArrayList<>(Arrays.asList(arguments));
         params.addFirst(command);
@@ -64,6 +73,7 @@ public class ManagedProcess {
     public void waitForCompletion() {
         Runnable waitForProcess = () -> {
             try {
+                this.output = outputData();
                 this.exitCode = process.waitFor();
                 this.state = ProcessState.FINISHED;
             } catch (InterruptedException e) {
@@ -79,5 +89,29 @@ public class ManagedProcess {
         if (this.state == ProcessState.INIT) {
             System.out.println("Process not started");
         }else this.thread.join();
+    }
+
+    public String outputData(){
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        try(BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()))){
+
+            while(true){
+                String line = input.readLine();
+                if(line == null){
+                    break;
+                }
+
+                stringBuilder.append(line);
+                stringBuilder.append("\n");
+
+            }
+
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return stringBuilder.toString();
     }
 }
