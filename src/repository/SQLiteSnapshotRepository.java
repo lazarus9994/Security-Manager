@@ -20,12 +20,20 @@ public class SQLiteSnapshotRepository implements SnapshotRepository {
 
     @Override
     public void save(NetstatSnapshot snapshot) {
+
+        //connection.setAutoCommit(false);
+
         String timestamp = snapshot.getTimestamp().toString();
         String insertStatement = "INSERT INTO netstat_snapshots (timestamp) VALUES(?)";
 
         long snapshot_id = -1;
 
-        try(PreparedStatement statement = connection.prepareStatement(insertStatement, PreparedStatement.RETURN_GENERATED_KEYS)){
+        String netstatResultInsertStatement = "INSERT INTO netstat_results" +
+                " (snapshot_id, process_name, local_address, local_port, foreign_address, foreign_port, state, pid, protocol)" +
+                " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try(PreparedStatement statement = connection.prepareStatement(insertStatement, PreparedStatement.RETURN_GENERATED_KEYS);
+            PreparedStatement resultsStatement = connection.prepareStatement(netstatResultInsertStatement)){
 
             statement.setString(1, timestamp);
             statement.executeUpdate();
@@ -34,24 +42,12 @@ public class SQLiteSnapshotRepository implements SnapshotRepository {
                 if (resultSet.next()) {
                     snapshot_id = resultSet.getLong(1);
                 }
-            }catch (SQLException e){
-                e.printStackTrace();
             }
 
-        }catch (SQLException e){
-            e.printStackTrace();
-        }
-
-        if(snapshot_id == -1){
-            System.out.println("Invalid snapshot_id value");
-            return;
-        }
-
-        String netstatResultInsertStatement = "INSERT INTO netstat_results" +
-                " (snapshot_id, process_name, local_address, local_port, foreign_address, foreign_port, state, pid, protocol)" +
-                " VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-        try(PreparedStatement resultsStatement = connection.prepareStatement(netstatResultInsertStatement)){
+            if(snapshot_id == -1){
+                System.out.println("Invalid snapshot_id value");
+                return;
+            }
 
             for (NetstatResult netstatResult : snapshot.getConnections()){
                 resultsStatement.setLong(1 , snapshot_id);
@@ -66,9 +62,11 @@ public class SQLiteSnapshotRepository implements SnapshotRepository {
 
                 resultsStatement.executeUpdate();
             }
+
         }catch (SQLException e){
             e.printStackTrace();
         }
+
 
     }
 
