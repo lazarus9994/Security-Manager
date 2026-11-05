@@ -19,6 +19,10 @@ public class ProcessManager {
         this.processList.add(process);
     }
 
+    public ManagedProcess getProcess(String name){
+        return this.processList.stream().filter(p -> p.getProcessName().equals(name)).findFirst().orElse(null);
+    }
+
     public void startProcess(ManagedProcess process) throws IOException {
         process.start();
         process.waitForCompletion();

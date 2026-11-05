@@ -2,5 +2,8 @@ package entity;
 
 public enum State {
     ESTABLISHED,
-    STATELESS
+    STATELESS,
+    LISTENING,
+    TIME_WAIT,
+    CLOSE_WAIT
 }
