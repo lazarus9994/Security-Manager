@@ -26,14 +26,32 @@ public class NetstatSnapshot {
         connections.add(netstatResult);
     }
 
+    //TODO
     public void printConnections(){
-        System.out.println(getTimestamp());
+        String separator = "    |   ";
+        StringBuilder builder = new StringBuilder();
+        builder.append("Process name");
+        builder.append(separator);
+        builder.append("PID");
+        builder.append(separator);
+        builder.append("Local Address");
+        builder.append(separator);
+        builder.append("Local Port");
+        builder.append(separator);
+        builder.append("Foreign Address");
+        builder.append(separator);
+        builder.append("Foreign Port");
+        builder.append(separator);
+        builder.append("Protocol");
+        builder.append(separator);
+        builder.append("State");
+        builder.append(separator);
+        builder.append("\n");
         System.out.println("Connections:");
+        System.out.println(builder);
         for (NetstatResult netstatResult : connections){
-            System.out.println(netstatResult.getPid());
-            System.out.println(netstatResult.getProcessName());
-            System.out.println(netstatResult.getLocalAddress() + " " + netstatResult.getLocalPort());
-            System.out.println(netstatResult.getForeignAddress() + " " + netstatResult.getForeignPort());
+            System.out.println(netstatResult.toString());
         }
+
     }
 }

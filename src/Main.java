@@ -36,12 +36,8 @@ public class Main {
             SnapshotRepository repo = new SQLiteSnapshotRepository(connection);
             Optional<NetstatSnapshot> netstatSnapshotOptional = repo.findById(6);
 
-            if(netstatSnapshotOptional.isPresent()){
-                NetstatSnapshot netstatSnapshot = netstatSnapshotOptional.get();
-                System.out.println(netstatSnapshot.getTimestamp());
-                netstatSnapshot.printConnections();
-            }
-            System.out.println(netstatSnapshotOptional);
+            netstatSnapshotOptional.ifPresent(NetstatSnapshot::printConnections);
+
         }catch (SQLException e){
             e.printStackTrace();
         }

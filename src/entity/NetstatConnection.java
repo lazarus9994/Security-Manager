@@ -55,4 +55,27 @@ public class NetstatConnection {
             this.state = State.STATELESS;
         }
     }
+
+    //TODO
+    @Override
+    public String toString(){
+        String separator = "    |   ";
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.pid);
+        builder.append(separator);
+        builder.append(this.localIp);
+        builder.append(separator);
+        builder.append(this.localPort);
+        builder.append(separator);
+        builder.append(this.foreignIp);
+        builder.append(separator);
+        builder.append(this.foreignPort);
+        builder.append(separator);
+        builder.append(this.protocol);
+        builder.append(separator);
+        builder.append(this.state);
+        builder.append(separator);
+
+        return builder.toString();
+    }
 }

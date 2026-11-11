@@ -41,4 +41,17 @@ public class NetstatResult {
     public Protocol getProtocol(){
         return connection.getProtocol();
     }
+
+    //TODO
+    @Override
+    public String toString(){
+        String separator = "    |   ";
+        StringBuilder builder = new StringBuilder();
+        builder.append(this.processName);
+        builder.append(separator);
+        builder.append(connection.toString());
+
+        return builder.toString();
+
+    }
 }
