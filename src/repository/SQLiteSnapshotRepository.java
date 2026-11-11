@@ -1,12 +1,12 @@
 package repository;
 
-import entity.NetstatResult;
-import entity.NetstatSnapshot;
+import entity.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class SQLiteSnapshotRepository implements SnapshotRepository {
@@ -93,6 +93,39 @@ public class SQLiteSnapshotRepository implements SnapshotRepository {
 
     @Override
     public Optional<NetstatSnapshot> findById(long id) {
-        return Optional.empty();
+
+        NetstatSnapshot snapshot;
+
+        String selectSnapshotStatement = "SELECT * FROM netstat_snapshots WHERE id = ?";
+        String selectResultStatement = "SELECT * FROM netstat_results WHERE snapshot_id = ?";
+        try(PreparedStatement snapshotStatement = connection.prepareStatement(selectSnapshotStatement);
+            PreparedStatement resultStatement = connection.prepareStatement(selectResultStatement)) {
+
+            snapshotStatement.setLong(1, id);
+            resultStatement.setLong(1, id);
+
+            try(ResultSet resultSet = snapshotStatement.executeQuery()){
+                if(resultSet.next()) {
+                    String timestamp = resultSet.getString("timestamp");
+                    snapshot = new NetstatSnapshot(LocalDateTime.parse(timestamp));
+                }else return Optional.empty();
+            }
+
+
+            try(ResultSet resultSet = resultStatement.executeQuery()){
+                while(resultSet.next()){
+                    NetstatConnection netstatConnection = new NetstatConnection(resultSet.getInt("pid"),
+                            Protocol.valueOf(resultSet.getString("protocol").toUpperCase()),
+                            resultSet.getString("local_address"), resultSet.getInt("local_port"),
+                            resultSet.getString("foreign_address"), resultSet.getInt("foreign_port"),
+                            State.valueOf(resultSet.getString("state").toUpperCase()));
+                    NetstatResult netstatResult = new NetstatResult(resultSet.getString("process_name"), netstatConnection);
+                    snapshot.addConnection(netstatResult);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.of(snapshot);
     }
 }

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -27,6 +28,20 @@ public class Main {
 
             repo.save(snapshot);
 
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        try(Connection connection = databaseConnection.connect()){
+            SnapshotRepository repo = new SQLiteSnapshotRepository(connection);
+            Optional<NetstatSnapshot> netstatSnapshotOptional = repo.findById(6);
+
+            if(netstatSnapshotOptional.isPresent()){
+                NetstatSnapshot netstatSnapshot = netstatSnapshotOptional.get();
+                System.out.println(netstatSnapshot.getTimestamp());
+                netstatSnapshot.printConnections();
+            }
+            System.out.println(netstatSnapshotOptional);
         }catch (SQLException e){
             e.printStackTrace();
         }
