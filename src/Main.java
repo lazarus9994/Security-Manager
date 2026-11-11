@@ -1,6 +1,5 @@
 import database.DatabaseConnection;
-import entity.NetstatCollector;
-import entity.NetstatSnapshot;
+import entity.*;
 import manager.ProcessManager;
 import repository.SQLiteSnapshotRepository;
 import repository.SnapshotRepository;
@@ -8,6 +7,7 @@ import repository.SnapshotRepository;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
