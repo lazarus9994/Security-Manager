@@ -1,6 +1,8 @@
-package entity;
+package collector;
 
 
+import entity.NetstatResult;
+import entity.NetstatSnapshot;
 import manager.ProcessManager;
 import mapper.NetstatMapper;
 import mapper.TasklistMapper;

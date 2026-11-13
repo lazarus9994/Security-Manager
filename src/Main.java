@@ -1,5 +1,7 @@
+import collector.NetstatCollector;
 import database.DatabaseConnection;
 import entity.*;
+import gui.MainWindow;
 import manager.ProcessManager;
 import repository.SQLiteSnapshotRepository;
 import repository.SnapshotRepository;
@@ -7,7 +9,6 @@ import repository.SnapshotRepository;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 public class Main {
@@ -41,6 +42,9 @@ public class Main {
         }catch (SQLException e){
             e.printStackTrace();
         }
+
+        MainWindow mainWindow = new MainWindow();
+
 
 
 
