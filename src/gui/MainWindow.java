@@ -13,9 +13,9 @@ public class MainWindow {
     private ConnectionPanel connectionPanel;
     private ControlPanel controlPanel;
 
-    public MainWindow(){
-        connectionPanel = new ConnectionPanel();
-        controlPanel = new ControlPanel();
+    public MainWindow(ConnectionPanel connectionPanel, ControlPanel controlPanel){
+        this.connectionPanel = connectionPanel;
+        this.controlPanel = controlPanel;
         initializeFrame();
     }
 
