@@ -5,6 +5,8 @@ import gui.panels.ConnectionPanel;
 import gui.panels.ControlPanel;
 import manager.ProcessManager;
 
+import javax.swing.*;
+
 
 public class Main {
     public static void main(String[] args){
@@ -13,11 +15,17 @@ public class Main {
 
         NetstatCollector collector = new NetstatCollector(processManager);
 
-        ControlPanel controlPanel = new ControlPanel();
-        ConnectionPanel connectionPanel = new ConnectionPanel();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
 
-        MainController mainController = new MainController(collector, connectionPanel.getConnectionTableModel(), controlPanel);
-        MainWindow mainWindow = new MainWindow(connectionPanel, controlPanel);
+                ControlPanel controlPanel = new ControlPanel();
+                ConnectionPanel connectionPanel = new ConnectionPanel();
+
+                MainController mainController = new MainController(collector, connectionPanel.getConnectionTableModel(), controlPanel);
+                MainWindow mainWindow = new MainWindow(connectionPanel, controlPanel);
+            }
+        });
 
 
     }

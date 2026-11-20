@@ -5,8 +5,10 @@ import entity.NetstatSnapshot;
 import gui.models.ConnectionTableModel;
 import gui.panels.ControlPanel;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
 
 public class MainController {
 
@@ -22,8 +24,27 @@ public class MainController {
     }
 
     public void collectNetworkSnapshot(){
-        NetstatSnapshot snapshot = netstatCollector.combineData();
-        connectionTableModel.updateData(snapshot);
+        SwingWorker<NetstatSnapshot, Void> swingWorker = new SwingWorker<NetstatSnapshot, Void>() {
+            @Override
+            protected NetstatSnapshot doInBackground() throws Exception {
+                return netstatCollector.combineData();
+            }
+            @Override
+            protected void done(){
+                try {
+                    NetstatSnapshot snapshot = get();
+                    connectionTableModel.updateData(snapshot);
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } catch (ExecutionException e){
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        swingWorker.execute();
+
     }
 
     private void initializeListeners(){
