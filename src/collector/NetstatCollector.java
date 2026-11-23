@@ -21,12 +21,10 @@ public class NetstatCollector {
     private ManagedProcess tasklist;
     private NetstatMapper netstatMapper;
     private TasklistMapper tasklistMapper;
-    private NetstatSnapshot netstatSnapshot;
     private Map<Integer, String> pidNameMap;
 
     public NetstatCollector(ProcessManager processManager) {
         this.processManager = processManager;
-        this.netstatSnapshot = new NetstatSnapshot(LocalDateTime.now());
     }
 
     public boolean startProcesses(){
@@ -66,6 +64,8 @@ public class NetstatCollector {
 
     public NetstatSnapshot combineData(){
         collectData();
+
+        NetstatSnapshot netstatSnapshot = new NetstatSnapshot(LocalDateTime.now());
 
         for (Map.Entry<Integer, String> entry : this.pidNameMap.entrySet()) {
             for (int i = 0; i < this.netstatMapper.getNetstatConnectionList().size(); i++) {

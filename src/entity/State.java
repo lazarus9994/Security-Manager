@@ -6,5 +6,6 @@ public enum State {
     SYN_SENT,
     LISTENING,
     TIME_WAIT,
-    CLOSE_WAIT
+    CLOSE_WAIT,
+    FIN_WAIT_2
 }

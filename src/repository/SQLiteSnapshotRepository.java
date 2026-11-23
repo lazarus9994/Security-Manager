@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.*;
 
 public class SQLiteSnapshotRepository implements SnapshotRepository {
 
@@ -96,8 +96,8 @@ public class SQLiteSnapshotRepository implements SnapshotRepository {
 
         NetstatSnapshot snapshot;
 
-        String selectSnapshotStatement = "SELECT * FROM netstat_snapshots WHERE id = ?";
-        String selectResultStatement = "SELECT * FROM netstat_results WHERE snapshot_id = ?";
+        String selectSnapshotStatement = "SELECT * FROM netstat_snapshots WHERE id = ?;";
+        String selectResultStatement = "SELECT * FROM netstat_results WHERE snapshot_id = ?;";
         try(PreparedStatement snapshotStatement = connection.prepareStatement(selectSnapshotStatement);
             PreparedStatement resultStatement = connection.prepareStatement(selectResultStatement)) {
 
@@ -128,4 +128,51 @@ public class SQLiteSnapshotRepository implements SnapshotRepository {
         }
         return Optional.of(snapshot);
     }
+
+    @Override
+    public List<NetstatSnapshot> getNetstatSnapshotHistory() {
+
+        Map<Long, NetstatSnapshot> snapshots = new LinkedHashMap<>();
+        String selectSnapshotsByTimestampDesc = "SELECT\n" +
+                "    s.id AS snapshot_id,\n" +
+                "    s.timestamp,\n" +
+                "    r.id AS result_id,\n" +
+                "    r.process_name,\n" +
+                "    r.local_address,\n" +
+                "    r.local_port,\n" +
+                "    r.foreign_address,\n" +
+                "    r.foreign_port,\n" +
+                "    r.state,\n" +
+                "    r.pid,\n" +
+                "    r.protocol\n" +
+                "FROM netstat_snapshots AS s\n" +
+                "LEFT JOIN netstat_results AS r\n" +
+                "    ON s.id = r.snapshot_id\n" +
+                "ORDER BY s.timestamp DESC;";
+        try(PreparedStatement getSnapshotHistoryStatement = connection.prepareStatement(selectSnapshotsByTimestampDesc)) {
+
+            try(ResultSet resultSet = getSnapshotHistoryStatement.executeQuery()){
+                while(resultSet.next()){
+                    if(!snapshots.containsKey(resultSet.getLong("snapshot_id"))){
+                        snapshots.put(resultSet.getLong("snapshot_id"), new NetstatSnapshot(LocalDateTime.parse(resultSet.getString("timestamp"))));
+                    }
+                    NetstatSnapshot snapshot = snapshots.get(resultSet.getLong("snapshot_id"));
+                    if (resultSet.getObject("result_id") != null){
+                        NetstatConnection netstatConnection = new NetstatConnection(resultSet.getInt("pid"),
+                                Protocol.valueOf(resultSet.getString("protocol").toUpperCase()),
+                                resultSet.getString("local_address"), resultSet.getInt("local_port"),
+                                resultSet.getString("foreign_address"), resultSet.getInt("foreign_port"),
+                                State.valueOf(resultSet.getString("state").toUpperCase()));
+                        NetstatResult netstatResult = new NetstatResult(resultSet.getString("process_name"), netstatConnection);
+                        snapshot.addConnection(netstatResult);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return snapshots.values().stream().toList();
+    }
+
+
 }

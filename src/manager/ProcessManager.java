@@ -33,6 +33,8 @@ public class ProcessManager {
         for (ManagedProcess process : processList) {
             process.waitForProcess();
         }
+
+        processList.clear();
     }
 
 }

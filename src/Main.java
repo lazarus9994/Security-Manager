@@ -1,11 +1,16 @@
 import collector.NetstatCollector;
 import controller.MainController;
+import database.DatabaseConnection;
+import entity.NetstatSnapshot;
 import gui.MainWindow;
 import gui.panels.ConnectionPanel;
 import gui.panels.ControlPanel;
 import manager.ProcessManager;
+import repository.SQLiteSnapshotRepository;
+import repository.SnapshotRepository;
 
 import javax.swing.*;
+import java.util.List;
 
 
 public class Main {
@@ -15,6 +20,11 @@ public class Main {
 
         NetstatCollector collector = new NetstatCollector(processManager);
 
+        DatabaseConnection databaseConnection = new DatabaseConnection();
+        SnapshotRepository snapshotRepository = new SQLiteSnapshotRepository(databaseConnection.connect());
+
+
+
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -22,7 +32,7 @@ public class Main {
                 ControlPanel controlPanel = new ControlPanel();
                 ConnectionPanel connectionPanel = new ConnectionPanel();
 
-                MainController mainController = new MainController(collector, connectionPanel.getConnectionTableModel(), controlPanel);
+                MainController mainController = new MainController(collector, connectionPanel.getConnectionTableModel(), controlPanel, snapshotRepository);
                 MainWindow mainWindow = new MainWindow(connectionPanel, controlPanel);
             }
         });
