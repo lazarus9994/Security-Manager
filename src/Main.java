@@ -1,3 +1,4 @@
+import analyzer.ProcessAnalyzerTest;
 import collector.NetstatCollector;
 import controller.MainController;
 import database.DatabaseConnection;
@@ -24,6 +25,8 @@ public class Main {
         SnapshotRepository snapshotRepository = new SQLiteSnapshotRepository(databaseConnection.connect());
 
 
+        ProcessAnalyzerTest processAnalyzerTest = new ProcessAnalyzerTest();
+        processAnalyzerTest.runTest();
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
